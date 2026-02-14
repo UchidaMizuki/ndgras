@@ -40,4 +40,24 @@ describe("nd_gras()", {
     expect_equal(apply(result$target, margin_1, sum), target_1)
     expect_equal(apply(result$target, margin_2, sum), as.vector(target_2))
   })
+
+  it("can converge when targets contain NA", {
+    target_1[2, 3] <- NA
+    target_2[2] <- NA
+
+    result <- nd_gras(
+      source = source,
+      constraints = list(
+        nd_gras_constraint(margin_1, target_1),
+        nd_gras_constraint(margin_2, target_2)
+      )
+    )
+    target_1_result <- apply(result$target, margin_1, sum)
+    target_1_result[2, 3] <- NA
+    expect_equal(target_1_result, target_1)
+
+    target_2_result <- apply(result$target, margin_2, sum)
+    target_2_result[2] <- NA
+    expect_equal(target_2_result, as.vector(target_2))
+  })
 })
