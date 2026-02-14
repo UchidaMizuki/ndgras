@@ -1,18 +1,17 @@
-nd_gras_constraint <- function(margin, target) {
-  list(margin = margin, target = target)
-}
-
 nd_gras <- function(
-  prior,
+  source,
   constraints,
   ...,
   tolerance = 1e-8,
   max_iterations = 1000
 ) {
-  dim_prior <- dim(prior)
+  source <- as.array(source)
+  constraints <- nd_gras_validate_constraints(constraints)
+  tolerance <- nd_gras_validate_tolerance(tolerance)
+  max_iterations <- nd_gras_validate_max_iterations(max_iterations)
 
-  prior_positive <- pmax(prior, 0)
-  prior_negative <- pmax(-prior, 0)
+  source_positive <- pmax(source, 0)
+  source_negative <- pmax(-source, 0)
 
   margins <- purrr::map(constraints, \(constraint) {
     constraint$margin
@@ -21,21 +20,21 @@ nd_gras <- function(
     constraint$target
   })
   multipliers <- purrr::map(margins, \(margin) {
-    array(1, dim = dim_prior[margin])
+    array(1, dim = dim(source)[margin])
   })
 
   for (iteration in seq_len(max_iterations)) {
     multipliers_old <- multipliers
     for (index in seq_along(constraints)) {
       marginal_positive <- nd_gras_marginal(
-        prior = prior_positive,
+        source = source_positive,
         margins_other = margins[-index],
         multipliers_other = multipliers[-index],
         margin = margins[[index]],
         type = "positive"
       )
       marginal_negative <- nd_gras_marginal(
-        prior = prior_negative,
+        source = source_negative,
         margins_other = margins[-index],
         multipliers_other = multipliers[-index],
         margin = margins[[index]],
@@ -58,21 +57,28 @@ nd_gras <- function(
     }
   }
 
-  nd_gras_result(
-    prior_positive = prior_positive,
-    prior_negative = prior_negative,
+  target <- nd_gras_target(
+    source_positive = source_positive,
+    source_negative = source_negative,
     margins = margins,
     multipliers = multipliers
+  )
+  list(
+    target = target,
+    margins = margins,
+    multipliers = multipliers,
+    iterations = iteration,
+    converged = converged
   )
 }
 
 nd_gras_adjust <- function(
-  prior,
+  source,
   margins,
   multipliers,
   type
 ) {
-  adjusted <- prior
+  adjusted <- source
   for (index in seq_along(margins)) {
     adjusted <- sweep(
       adjusted,
@@ -85,14 +91,14 @@ nd_gras_adjust <- function(
 }
 
 nd_gras_marginal <- function(
-  prior,
+  source,
   margins_other,
   multipliers_other,
   margin,
   type
 ) {
   adjusted <- nd_gras_adjust(
-    prior = prior,
+    source = source,
     margins = margins_other,
     multipliers = multipliers_other,
     type = type
@@ -125,20 +131,20 @@ nd_gras_converged <- function(multipliers, multipliers_old, tolerance) {
   ))
 }
 
-nd_gras_result <- function(
-  prior_positive,
-  prior_negative,
+nd_gras_target <- function(
+  source_positive,
+  source_negative,
   margins,
   multipliers
 ) {
   adjusted_positive <- nd_gras_adjust(
-    prior = prior_positive,
+    source = source_positive,
     margins = margins,
     multipliers = multipliers,
     type = "positive"
   )
   adjusted_negative <- nd_gras_adjust(
-    prior = prior_negative,
+    source = source_negative,
     margins = margins,
     multipliers = multipliers,
     type = "negative"
