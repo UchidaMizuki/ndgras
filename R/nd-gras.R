@@ -2,7 +2,7 @@ nd_gras <- function(
   source,
   constraints,
   ...,
-  tolerance = 1e-8,
+  tolerance = 1e-10,
   max_iterations = 1000
 ) {
   source <- as.array(source)
