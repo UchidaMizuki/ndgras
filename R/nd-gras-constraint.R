@@ -1,3 +1,11 @@
+#' Create a constraint for the nD-GRAS method
+#'
+#' @param margin An integer vector indicating the dimensions to constrain.
+#' @param target An array (or vector) representing the target marginal sums.
+#'
+#' @return A list containing the margin and target.
+#'
+#' @export
 nd_gras_constraint <- function(margin, target) {
   margin <- vctrs::vec_cast(margin, integer())
   target <- as.array(target)

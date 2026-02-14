@@ -1,3 +1,19 @@
+#' Multidimensional RAS (nD-GRAS) method
+#'
+#' @param source An array to be adjusted.
+#' @param constraints A list of constraints created by [nd_gras_constraint()].
+#' @param ... Additional arguments (currently unused).
+#' @param tolerance A numeric value indicating the convergence tolerance. Default is `1e-10`.
+#' @param max_iterations An integer indicating the maximum number of iterations. Default is `1000`.
+#'
+#' @return A list containing the following components:
+#'   \item{target}{The adjusted n-dimensional array.}
+#'   \item{margins}{A list of margins used in the constraints.}
+#'   \item{multipliers}{A list of multipliers for each constraint.}
+#'   \item{iterations}{The number of iterations performed.}
+#'   \item{converged}{A logical value indicating whether the algorithm converged.}
+#'
+#' @export
 nd_gras <- function(
   source,
   constraints,
