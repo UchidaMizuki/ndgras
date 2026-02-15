@@ -2,7 +2,7 @@
 % Please edit documentation in R/nd-gras.R
 \name{nd_gras}
 \alias{nd_gras}
-\title{Multidimensional RAS (nD-GRAS) method}
+\title{N-dimensional Generalized RAS (nD-GRAS) method}
 \usage{
 nd_gras(source, constraints, ..., tolerance = 1e-10, max_iterations = 1000)
 }
@@ -26,5 +26,5 @@ A list containing the following components:
 \item{converged}{A logical value indicating whether the algorithm converged.}
 }
 \description{
-Multidimensional RAS (nD-GRAS) method
+N-dimensional Generalized RAS (nD-GRAS) method
 }

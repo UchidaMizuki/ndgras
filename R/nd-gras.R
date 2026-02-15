@@ -1,4 +1,4 @@
-#' Multidimensional RAS (nD-GRAS) method
+#' N-dimensional Generalized RAS (nD-GRAS) method
 #'
 #' @param source An array to be adjusted.
 #' @param constraints A list of constraints created by [nd_gras_constraint()].
@@ -88,22 +88,22 @@ nd_gras <- function(
   )
 }
 
-nd_gras_adjust <- function(
+nd_gras_scale <- function(
   source,
   margins,
   multipliers,
   type
 ) {
-  adjusted <- source
+  scaled <- source
   for (index in seq_along(margins)) {
-    adjusted <- sweep(
-      adjusted,
+    scaled <- sweep(
+      scaled,
       margins[[index]],
       multipliers[[index]],
       switch(type, positive = "*", negative = "/")
     )
   }
-  adjusted
+  scaled
 }
 
 nd_gras_marginal <- function(
@@ -113,13 +113,13 @@ nd_gras_marginal <- function(
   margin,
   type
 ) {
-  adjusted <- nd_gras_adjust(
+  scaled <- nd_gras_scale(
     source = source,
     margins = margins_other,
     multipliers = multipliers_other,
     type = type
   )
-  apply(adjusted, margin, sum)
+  apply(scaled, margin, sum)
 }
 
 nd_gras_multiplier <- function(
@@ -153,17 +153,17 @@ nd_gras_target <- function(
   margins,
   multipliers
 ) {
-  adjusted_positive <- nd_gras_adjust(
+  scaled_positive <- nd_gras_scale(
     source = source_positive,
     margins = margins,
     multipliers = multipliers,
     type = "positive"
   )
-  adjusted_negative <- nd_gras_adjust(
+  scaled_negative <- nd_gras_scale(
     source = source_negative,
     margins = margins,
     multipliers = multipliers,
     type = "negative"
   )
-  adjusted_positive - adjusted_negative
+  scaled_positive - scaled_negative
 }
