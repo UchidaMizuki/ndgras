@@ -57,14 +57,15 @@ target3 <- c(14, 16)
 
 # Note: The sum of each target vector must be equal (Total = 30)
 
-constraints <- list(
-  nd_gras_constraint(1, target1),
-  nd_gras_constraint(2, target2),
-  nd_gras_constraint(3, target3)
-)
-
 # Apply nD-GRAS
-result <- nd_gras(source, constraints)
+result <- nd_gras(
+  source = source,
+  constraints = list(
+    nd_gras_constraint(1, target1),
+    nd_gras_constraint(2, target2),
+    nd_gras_constraint(3, target3)
+  )
+)
 
 # The adjusted array
 result$target
