@@ -70,3 +70,10 @@ apply(result$target, 1, sum)
 apply(result$target, 2, sum)
 apply(result$target, 3, sum)
 ```
+
+## References
+
+- [Valderas-Jaramillo, Juan Manuel, and José Manuel Rueda-Cantuche. 2021. “The Multidimensional nD‐GRAS Method: Applications for the Projection of Multiregional Input–Output Frameworks and Valuation Matrices.” Papers in Regional Science: The Journal of the Regional Science Association International 100 (6): 1599–1625.](https://doi.org/10.1111/pirs.12625)
+- [Junius, Theo, and Jan Oosterhaven. 2003. “The Solution of Updating or Regionalizing a Matrix with Both Positive and Negative Entries.” Economic Systems Research : Journal of the International Input-Output Association 15 (1): 87–96.](https://doi.org/10.1080/0953531032000056954)
+- [Lenzen, Manfred, Richard Wood, and Blanca Gallego. 2007. “Some Comments on the GRAS Method.” Economic Systems Research : Journal of the International Input-Output Association 19 (4): 461–65.](https://doi.org/10.1080/09535310701698613)
+
