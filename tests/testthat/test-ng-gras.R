@@ -15,67 +15,91 @@ describe("nd_gras()", {
     dim = dim_source
   )
 
-  margin_1 <- 1:2
-  target_1 <- array(
-    runif(prod(dim_source[margin_1])),
-    dim = dim_source[margin_1]
+  margin1 <- 1:2
+  target1 <- array(
+    runif(prod(dim_source[margin1])),
+    dim = dim_source[margin1]
   )
-  target_1 <- target_1 / sum(target_1)
+  target1 <- target1 / sum(target1)
 
-  margin_2 <- 3
-  target_2 <- array(
-    runif(prod(dim_source[margin_2])),
-    dim = dim_source[margin_2]
+  margin2 <- 3
+  target2 <- array(
+    runif(prod(dim_source[margin2])),
+    dim = dim_source[margin2]
   )
-  target_2 <- target_2 / sum(target_2)
+  target2 <- target2 / sum(target2)
 
   it("can converge", {
     result <- nd_gras(
       source = source,
       constraints = list(
-        nd_gras_constraint(margin_1, target_1),
-        nd_gras_constraint(margin_2, target_2)
+        nd_gras_constraint(margin1, target1),
+        nd_gras_constraint(margin2, target2)
       )
     )
-    expect_equal(apply(result$target, margin_1, sum), target_1)
-    expect_equal(apply(result$target, margin_2, sum), as.vector(target_2))
+    expect_equal(apply(result$target, margin1, sum), target1)
+    expect_equal(apply(result$target, margin2, sum), as.vector(target2))
   })
 
   it("can converge when targets contain NA", {
-    target_1[2, 3] <- NA
-    target_2[2] <- NA
+    target1[2, 3] <- NA
+    target2[2] <- NA
 
     result <- nd_gras(
       source = source,
       constraints = list(
-        nd_gras_constraint(margin_1, target_1),
-        nd_gras_constraint(margin_2, target_2)
+        nd_gras_constraint(margin1, target1),
+        nd_gras_constraint(margin2, target2)
       )
     )
-    target_1_result <- apply(result$target, margin_1, sum)
-    target_1_result[2, 3] <- NA
-    expect_equal(target_1_result, target_1)
+    target1_result <- apply(result$target, margin1, sum)
+    target1_result[2, 3] <- NA
+    expect_equal(target1_result, target1)
 
-    target_2_result <- apply(result$target, margin_2, sum)
-    target_2_result[2] <- NA
-    expect_equal(target_2_result, as.vector(target_2))
+    target2_result <- apply(result$target, margin2, sum)
+    target2_result[2] <- NA
+    expect_equal(target2_result, as.vector(target2))
   })
 
   it("can converge when targets contain zero", {
-    target_1[2, 3] <- 0
-    target_1 <- target_1 / sum(target_1)
+    target1[2, 3] <- 0
+    target1 <- target1 / sum(target1)
 
-    target_2[2] <- 0
-    target_2 <- target_2 / sum(target_2)
+    target2[2] <- 0
+    target2 <- target2 / sum(target2)
 
     result <- nd_gras(
       source = source,
       constraints = list(
-        nd_gras_constraint(margin_1, target_1),
-        nd_gras_constraint(margin_2, target_2)
+        nd_gras_constraint(margin1, target1),
+        nd_gras_constraint(margin2, target2)
       )
     )
-    expect_equal(apply(result$target, margin_1, sum), target_1)
-    expect_equal(apply(result$target, margin_2, sum), as.vector(target_2))
+    expect_equal(apply(result$target, margin1, sum), target1)
+    expect_equal(apply(result$target, margin2, sum), as.vector(target2))
+  })
+
+  it("can converge in the same way as mipfp::Ipfp()", {
+    skip_on_cran()
+    skip_if_not_installed("mipfp")
+
+    source <- array(
+      sample(seq(0, 1, by = 0.1), prod(dim_source), replace = TRUE),
+      dim = dim_source
+    )
+
+    result_nd_gras <- nd_gras(
+      source = source,
+      constraints = list(
+        nd_gras_constraint(margin1, target1),
+        nd_gras_constraint(margin2, target2)
+      )
+    )
+    result_mipfp <- mipfp::Ipfp(
+      seed = source,
+      target.list = list(margin1, margin2),
+      target.data = list(target1, target2)
+    )
+    expect_equal(result_nd_gras$target, result_mipfp$x.hat)
   })
 })
