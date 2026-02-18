@@ -75,6 +75,8 @@ describe("nd_gras()", {
         nd_gras_constraint(margin2, target2)
       )
     )
+    expect_true(all(result$target[2, 3, ] == 0))
+    expect_true(all(result$target[,, 2] == 0))
     expect_equal(apply(result$target, margin1, sum), target1)
     expect_equal(apply(result$target, margin2, sum), as.vector(target2))
   })

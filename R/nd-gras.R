@@ -29,9 +29,6 @@ nd_gras <- function(
   tolerance <- nd_gras_validate_tolerance(tolerance)
   max_iterations <- nd_gras_validate_max_iterations(max_iterations)
 
-  source_positive <- pmax(source, 0)
-  source_negative <- pmax(-source, 0)
-
   margins <- purrr::map(constraints, \(constraint) {
     vctrs::vec_as_location(
       constraint$margin,
@@ -45,6 +42,14 @@ nd_gras <- function(
   multipliers <- purrr::map(margins, \(margin) {
     array(1, dim = dim(source)[margin])
   })
+
+  source <- nd_gras_initialize_source(
+    source = source,
+    margins = margins,
+    targets = targets
+  )
+  source_positive <- pmax(source, 0)
+  source_negative <- pmax(-source, 0)
 
   for (iteration in seq_len(max_iterations)) {
     multipliers_old <- multipliers
@@ -104,6 +109,18 @@ nd_gras <- function(
     iterations = iteration,
     max_change_multipliers = max_change_multipliers,
     converged = converged
+  )
+}
+
+nd_gras_initialize_source <- function(source, margins, targets) {
+  multipliers <- purrr::map(targets, \(target) {
+    is.na(target) | target != 0
+  })
+  nd_gras_scale(
+    source = source,
+    margins = margins,
+    multipliers = multipliers,
+    type = "positive"
   )
 }
 
