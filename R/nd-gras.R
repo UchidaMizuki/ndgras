@@ -5,12 +5,14 @@
 #' @param ... Additional arguments (currently unused).
 #' @param tolerance A numeric value indicating the convergence tolerance. Default is `1e-10`.
 #' @param max_iterations An integer indicating the maximum number of iterations. Default is `1000`.
+#' @param verbose A logical value indicating whether to print progress messages. Default is `FALSE`.
 #'
 #' @return A list containing the following components:
 #'   \item{target}{The adjusted n-dimensional array.}
 #'   \item{margins}{A list of margins used in the constraints.}
 #'   \item{multipliers}{A list of multipliers for each constraint.}
 #'   \item{iterations}{The number of iterations performed.}
+#'   \item{max_change_multipliers}{The maximum absolute difference between multipliers of the last two iterations.}
 #'   \item{converged}{A logical value indicating whether the algorithm converged.}
 #'
 #' @export
@@ -19,7 +21,8 @@ nd_gras <- function(
   constraints,
   ...,
   tolerance = 1e-10,
-  max_iterations = 1000
+  max_iterations = 1000,
+  verbose = FALSE
 ) {
   source <- as.array(source)
   constraints <- nd_gras_validate_constraints(constraints)
@@ -30,7 +33,11 @@ nd_gras <- function(
   source_negative <- pmax(-source, 0)
 
   margins <- purrr::map(constraints, \(constraint) {
-    constraint$margin
+    vctrs::vec_as_location(
+      constraint$margin,
+      vctrs::vec_size(dim(source)),
+      names(dimnames(source))
+    )
   })
   targets <- purrr::map(constraints, \(constraint) {
     constraint$target
@@ -63,11 +70,22 @@ nd_gras <- function(
       )
     }
 
-    converged <- nd_gras_converged(
-      multipliers = multipliers,
-      multipliers_old = multipliers_old,
-      tolerance = tolerance
+    max_change_multipliers <- max(
+      purrr::map2_dbl(
+        multipliers,
+        multipliers_old,
+        function(multiplier, multiplier_old) {
+          max(abs(multiplier - multiplier_old))
+        }
+      )
     )
+    if (verbose) {
+      cli::cli_inform(
+        "Iteration {iteration}: Max change of multipliers = {max_change_multipliers}"
+      )
+    }
+
+    converged <- max_change_multipliers < tolerance
     if (converged) {
       break
     }
@@ -84,6 +102,7 @@ nd_gras <- function(
     margins = margins,
     multipliers = multipliers,
     iterations = iteration,
+    max_change_multipliers = max_change_multipliers,
     converged = converged
   )
 }
@@ -135,16 +154,6 @@ nd_gras_multiplier <- function(
   )
   multiplier[is.na(multiplier)] <- 1
   multiplier
-}
-
-nd_gras_converged <- function(multipliers, multipliers_old, tolerance) {
-  all(purrr::map2_lgl(
-    multipliers,
-    multipliers_old,
-    function(multiplier, multiplier_old) {
-      max(abs(multiplier - multiplier_old)) < tolerance
-    }
-  ))
 }
 
 nd_gras_target <- function(

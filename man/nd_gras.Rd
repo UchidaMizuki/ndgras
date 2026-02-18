@@ -4,7 +4,14 @@
 \alias{nd_gras}
 \title{N-dimensional Generalized RAS (nD-GRAS) method}
 \usage{
-nd_gras(source, constraints, ..., tolerance = 1e-10, max_iterations = 1000)
+nd_gras(
+  source,
+  constraints,
+  ...,
+  tolerance = 1e-10,
+  max_iterations = 1000,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{source}{An array to be adjusted.}
@@ -16,6 +23,8 @@ nd_gras(source, constraints, ..., tolerance = 1e-10, max_iterations = 1000)
 \item{tolerance}{A numeric value indicating the convergence tolerance. Default is \code{1e-10}.}
 
 \item{max_iterations}{An integer indicating the maximum number of iterations. Default is \code{1000}.}
+
+\item{verbose}{A logical value indicating whether to print progress messages. Default is \code{FALSE}.}
 }
 \value{
 A list containing the following components:
@@ -23,6 +32,7 @@ A list containing the following components:
 \item{margins}{A list of margins used in the constraints.}
 \item{multipliers}{A list of multipliers for each constraint.}
 \item{iterations}{The number of iterations performed.}
+\item{max_change_multipliers}{The maximum absolute difference between multipliers of the last two iterations.}
 \item{converged}{A logical value indicating whether the algorithm converged.}
 }
 \description{
